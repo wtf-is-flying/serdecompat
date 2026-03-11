@@ -86,7 +86,7 @@ def _normalize(tp: Any) -> Any:
 
 def _is_simply_serdecompat(a: object, b: object) -> bool:
     return (
-        (a is bool and b is bool)
+        (a is bool and b is int)
         or (a is bool and b is float)
         or (a is int and b is float)
         or (a is str and b is bytes)
