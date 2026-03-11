@@ -69,12 +69,6 @@ def is_serdecompat(a: object, b: object) -> bool:
     if a == b:
         return True
 
-    if _is_literal(a):
-        return _is_literal_serdecompat(a, b)
-
-    if _is_literal(b):
-        return _is_serdecompat_literal(a, b)
-
     for handler in _SERDECOMPAT_HANDLERS:
         result = handler(a, b)
         if result is not None:
@@ -118,6 +112,14 @@ def _is_simply_serdecompat(a: object, b: object) -> bool:
 
 def _is_union(tp: Any) -> bool:
     return typing.get_origin(tp) is Union
+
+
+def _handle_literal(a: object, b: object) -> bool | None:
+    if _is_literal(a):
+        return _is_literal_serdecompat(a, b)
+
+    if _is_literal(b):
+        return _is_serdecompat_literal(a, b)
 
 
 def _is_literal(tp: Any) -> bool:
@@ -246,6 +248,7 @@ def _is_pydantic_model(tp: object) -> type[BaseModel] | None:
 
 
 _SERDECOMPAT_HANDLERS: list[Callable[[object, object], bool | None]] = [
+    _handle_literal,
     _handle_schema_to_schema,
     _handle_sub_class,
     _handle_tuple,
