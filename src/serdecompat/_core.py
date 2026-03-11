@@ -74,17 +74,6 @@ def is_serdecompat(a: object, b: object) -> bool:
         if result is not None:
             return result
 
-    args_a = typing.get_args(a)
-    args_b = typing.get_args(b)
-
-    origin_a = typing.get_origin(a)
-    origin_b = typing.get_origin(b)
-
-    if origin_a and origin_b and origin_a == origin_b:
-        if len(args_a) != len(args_b):
-            return False
-        return all(is_serdecompat(x, y) for x, y in zip(args_a, args_b, strict=True))
-
     return False
 
 
@@ -177,6 +166,19 @@ def _handle_sub_class(a: object, b: object) -> bool | None:
     return None
 
 
+def _handle_generi_container(a: object, b: object) -> bool | None:
+    args_a = typing.get_args(a)
+    args_b = typing.get_args(b)
+
+    origin_a = typing.get_origin(a)
+    origin_b = typing.get_origin(b)
+
+    if origin_a and origin_b and origin_a == origin_b:
+        if len(args_a) != len(args_b):
+            return False
+        return all(is_serdecompat(x, y) for x, y in zip(args_a, args_b, strict=True))
+
+
 def _handle_abc_container(a: object, b: object) -> bool | None:
     origin_a = typing.get_origin(a)
     origin_b = typing.get_origin(b)
@@ -259,4 +261,5 @@ _SERDECOMPAT_HANDLERS: list[Callable[[object, object], bool | None]] = [
     _handle_tuple,
     _handle_abc_container,
     _handle_union,
+    _handle_generi_container,
 ]
