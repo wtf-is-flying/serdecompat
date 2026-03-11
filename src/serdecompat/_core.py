@@ -7,6 +7,56 @@ from pydantic import BaseModel
 
 
 def is_serdecompat(a: object, b: object) -> bool:
+    """Check if values of type ``a`` can be serialized into a representation compatible with type ``b``.
+
+    The function checks *serialization compatibility* rather than
+    runtime subtype relationships. In other words, it answers the question:
+
+        "If a value of type A is serialized, could it be deserialized as B?"
+
+    Compatibility is structural and recursive.
+
+    The following rules apply:
+
+    - Primitive widening is supported (e.g. ``bool -> int``, ``int -> float``).
+    - ``Union`` types are handled covariantly:
+        - ``Union[A, B] -> T`` if both ``A -> T`` and ``B -> T``.
+        - ``T -> Union[A, B]`` if ``T -> A`` or ``T -> B``.
+    - Generic containers are checked element-wise (e.g. ``list[bool] -> list[int]``).
+    - Tuple compatibility supports both fixed and variadic tuples (``tuple[T, ...]``).
+    - Compatibility across schema types is allowed if their fields match structurally.
+      The following types are supported:
+        - dataclasses
+        - ``TypedDict``
+        - ``pydantic.BaseModel`` subclasses
+    - ``Literal`` types are compatible with the type of their values.
+    - ``Annotated`` wrappers are ignored.
+
+    Extra fields in the source type are allowed as long as
+    all fields required by the target type exist and are compatible.
+
+    Examples:
+        >>> is_serdecompat(bool, int)
+        True
+
+        >>> is_serdecompat(list[bool], list[int])
+        True
+
+        >>> is_serdecompat(tuple[bool, ...], tuple[int, ...])
+        True
+
+        >>> @dataclasses.dataclass
+        ... class A:
+        ...     x: bool
+        ...     y: int
+        >>> class B(pydantic.BaseModel):
+        ...     x: int
+        >>> is_serdecompat(A, B)
+        True
+
+    Returns:
+        True if serialized representations of ``a`` are compatible with ``b``.
+    """
     a = _normalize(a)
     b = _normalize(b)
 
