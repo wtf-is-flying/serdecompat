@@ -1,2 +1,3 @@
-def hello() -> str:
-    return "Hello from serdecompat!"
+from ._core import is_serdecompat
+
+__all__ = ["is_serdecompat"]
