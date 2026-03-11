@@ -77,12 +77,6 @@ def is_serdecompat(a: object, b: object) -> bool:
     args_a = typing.get_args(a)
     args_b = typing.get_args(b)
 
-    if _is_union(a):
-        return all(is_serdecompat(x, b) for x in args_a)
-
-    if _is_union(b):
-        return any(is_serdecompat(a, x) for x in args_b)
-
     origin_a = typing.get_origin(a)
     origin_b = typing.get_origin(b)
 
@@ -108,6 +102,17 @@ def _is_simply_serdecompat(a: object, b: object) -> bool:
         or (a is int and b is float)
         or (a is str and b is bytes)
     )
+
+
+def _handle_union(a: object, b: object) -> bool | None:
+    args_a = typing.get_args(a)
+    args_b = typing.get_args(b)
+
+    if _is_union(a):
+        return all(is_serdecompat(x, b) for x in args_a)
+
+    if _is_union(b):
+        return any(is_serdecompat(a, x) for x in args_b)
 
 
 def _is_union(tp: Any) -> bool:
@@ -253,4 +258,5 @@ _SERDECOMPAT_HANDLERS: list[Callable[[object, object], bool | None]] = [
     _handle_sub_class,
     _handle_tuple,
     _handle_abc_container,
+    _handle_union,
 ]
