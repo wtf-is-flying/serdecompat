@@ -1,0 +1,21 @@
+[project]
+name = "serdecompat"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "wtf-is-flying", email = "106453261+wtf-is-flying@users.noreply.github.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic>=2.12.5",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.9,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+test = [
+    "pytest>=9.0.2",
+]
