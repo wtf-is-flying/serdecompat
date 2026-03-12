@@ -160,12 +160,6 @@ def handle_tuple(a: object, b: object) -> bool | None:
     return all(is_serdecompat(x, y) for x, y in zip(args_a, args_b, strict=True))
 
 
-def handle_sub_class(a: object, b: object) -> bool | None:
-    if isinstance(a, type) and isinstance(b, type) and issubclass(a, b):
-        return True
-    return None
-
-
 def handle_generic_container(a: object, b: object) -> bool | None:
     args_a = typing.get_args(a)
     args_b = typing.get_args(b)
@@ -257,7 +251,6 @@ def _is_pydantic_model(tp: object) -> type[BaseModel] | None:
 _SERDECOMPAT_HANDLERS: list[Callable[[object, object], bool | None]] = [
     handle_literal,
     handle_schema_to_schema,
-    handle_sub_class,
     handle_tuple,
     handle_abc_container,
     handle_union,
